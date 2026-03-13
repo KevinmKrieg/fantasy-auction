@@ -10,6 +10,8 @@
   --accent: #d9dde2;
   --accent-strong: #ffffff;
   --status: #7db9ff;
+  --red: #ff5a5f;
+  --red-soft: rgba(255, 90, 95, 0.14);
   --success: #83d18b;
   --shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
 }
@@ -78,11 +80,22 @@ select {
   text-transform: uppercase;
 }
 
+.hero-kicker::before {
+  content: "";
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  margin-right: 10px;
+  margin-bottom: 0.28em;
+  background: linear-gradient(90deg, var(--red), rgba(255, 90, 95, 0.12));
+}
+
 .hero-copy-block {
   position: relative;
   padding: 28px 30px 26px;
   min-height: 100%;
   border: 1px solid var(--line);
+  border-top: 2px solid rgba(255, 90, 95, 0.72);
   background: linear-gradient(180deg, rgba(16, 20, 24, 0.96), rgba(10, 13, 16, 0.96));
   box-shadow: var(--shadow);
 }
@@ -132,6 +145,7 @@ select {
   flex-direction: column;
   justify-content: center;
   background: linear-gradient(180deg, rgba(18, 22, 26, 0.96), rgba(12, 15, 18, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 90, 95, 0.1), var(--shadow);
 }
 
 .hero-stat-label {
@@ -174,6 +188,12 @@ select {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   border-radius: 999px;
+}
+
+.section-tag {
+  border-color: rgba(255, 90, 95, 0.34);
+  background: linear-gradient(180deg, rgba(255, 90, 95, 0.16), rgba(255, 90, 95, 0.05));
+  color: #ffd5d7;
 }
 
 .layout {
@@ -343,6 +363,20 @@ select,
   background: rgba(255, 255, 255, 0.08);
 }
 
+.summary-strip article:nth-child(2),
+.summary-strip article:nth-child(3),
+.summary-strip article:nth-child(7) {
+  border-color: rgba(255, 90, 95, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 90, 95, 0.08);
+}
+
+.summary-strip article:nth-child(2)::before,
+.summary-strip article:nth-child(3)::before,
+.summary-strip article:nth-child(7)::before {
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 90, 95, 0.88), rgba(255, 90, 95, 0.14));
+}
+
 .summary-strip strong {
   display: block;
   margin-top: 6px;
@@ -377,8 +411,8 @@ select,
 .table-button {
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(21, 25, 29, 0.96);
+  border: 1px solid rgba(255, 90, 95, 0.28);
+  background: linear-gradient(180deg, rgba(46, 20, 23, 0.96), rgba(23, 15, 17, 0.96));
   color: var(--text);
   cursor: pointer;
   text-transform: uppercase;
@@ -387,7 +421,7 @@ select,
 }
 
 .table-button:hover {
-  background: rgba(31, 36, 41, 0.98);
+  background: linear-gradient(180deg, rgba(66, 24, 28, 0.98), rgba(30, 16, 18, 0.98));
 }
 
 table {
@@ -411,6 +445,11 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   z-index: 1;
+}
+
+th:last-child,
+th:nth-last-child(3) {
+  color: rgba(255, 132, 136, 0.96);
 }
 
 tbody tr:hover {
