@@ -173,6 +173,14 @@
               <strong id="playersLoaded">0</strong>
             </article>
             <article>
+              <span class="summary-label">Players remaining</span>
+              <strong id="playersRemaining">0</strong>
+            </article>
+            <article>
+              <span class="summary-label">Players drafted</span>
+              <strong id="playersDrafted">0</strong>
+            </article>
+            <article>
               <span class="summary-label">Roster spots</span>
               <strong id="totalRosterSpots">0</strong>
             </article>
@@ -183,6 +191,10 @@
             <article>
               <span class="summary-label">Above-minimum pool</span>
               <strong id="auctionPool">$0</strong>
+            </article>
+            <article>
+              <span class="summary-label">Tracked spend</span>
+              <strong id="trackedSpend">$0</strong>
             </article>
           </div>
 
@@ -198,16 +210,47 @@
                   <th>Expected $</th>
                   <th>Ceiling $</th>
                   <th>Range</th>
+                  <th>Sale $</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="resultsBody">
                 <tr>
-                  <td colspan="8" class="empty-state">
+                  <td colspan="10" class="empty-state">
                     Upload a CSV and run valuation to populate the board.
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="drafted-section">
+            <div class="panel-heading">
+              <h2>Drafted Players</h2>
+              <p>Players removed from the live board, with optional sale prices.</p>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Team</th>
+                    <th>Pos</th>
+                    <th>Sold $</th>
+                    <th>Expected $</th>
+                    <th>Ceiling $</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="draftedBody">
+                  <tr>
+                    <td colspan="7" class="empty-state">
+                      No players have been marked as drafted.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </main>

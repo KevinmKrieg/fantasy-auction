@@ -9,6 +9,8 @@ Local draft helper for fantasy football auction leagues. Upload projection CSV d
 - Converts projections into auction prices using roster demand plus above-replacement value.
 - Shows an `expected` price and a `ceiling` price for every player.
 - Filters the board by player name, team, and position.
+- Lets you mark players as drafted with an optional sale price, then removes them from the live board.
+- Keeps a drafted-player ledger and recalculates the remaining market after each removal.
 
 ## Auction model
 

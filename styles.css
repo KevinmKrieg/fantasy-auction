@@ -258,6 +258,35 @@ select,
   background: rgba(255, 249, 241, 0.94);
 }
 
+.drafted-section {
+  margin-top: 24px;
+}
+
+.sale-input {
+  min-width: 92px;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.table-action {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 31, 17, 0.14);
+  background: rgba(255, 245, 228, 0.92);
+  color: var(--accent-strong);
+  cursor: pointer;
+}
+
+.table-button:hover {
+  background: rgba(239, 226, 205, 0.98);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

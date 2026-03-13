@@ -24,7 +24,9 @@ const POSITION_SET = new Set(POSITION_ORDER);
 const state = {
   rawRows: [],
   headers: [],
+  allPlayers: [],
   valuedPlayers: [],
+  draftedPlayers: new Map(),
 };
 
 const elements = {
@@ -41,10 +43,14 @@ const elements = {
   teamFilter: document.getElementById("teamFilter"),
   positionFilter: document.getElementById("positionFilter"),
   playersLoaded: document.getElementById("playersLoaded"),
+  playersRemaining: document.getElementById("playersRemaining"),
+  playersDrafted: document.getElementById("playersDrafted"),
   totalRosterSpots: document.getElementById("totalRosterSpots"),
   leagueBudget: document.getElementById("leagueBudget"),
   auctionPool: document.getElementById("auctionPool"),
+  trackedSpend: document.getElementById("trackedSpend"),
   resultsBody: document.getElementById("resultsBody"),
+  draftedBody: document.getElementById("draftedBody"),
 };
 
 const settingIds = [
@@ -70,6 +76,8 @@ function initialize() {
   elements.nameFilter.addEventListener("input", renderResults);
   elements.teamFilter.addEventListener("input", renderResults);
   elements.positionFilter.addEventListener("change", renderResults);
+  elements.resultsBody.addEventListener("click", handleResultsClick);
+  elements.draftedBody.addEventListener("click", handleDraftedClick);
 
   for (const id of settingIds) {
     document.getElementById(id).addEventListener("input", rerunIfReady);
@@ -100,6 +108,9 @@ function loadCsvText(csvText, label) {
 
   state.rawRows = parsed.rows;
   state.headers = parsed.headers;
+  state.allPlayers = [];
+  state.valuedPlayers = [];
+  state.draftedPlayers = new Map();
   setStatus(`Loaded ${parsed.rows.length} players from ${label}.`, true);
   populateColumnMappings(parsed.headers);
   runValuation();
@@ -124,7 +135,8 @@ function populateColumnMappings(headers) {
 function runValuation() {
   if (!state.rawRows.length) {
     renderEmpty("Upload a CSV and run valuation to populate the board.");
-    updateSummary(0, getSettings(), 0);
+    updateSummary(0, 0, getSettings(), 0);
+    renderDraftedPlayers();
     return;
   }
 
@@ -135,15 +147,20 @@ function runValuation() {
     return;
   }
 
-  const players = state.rawRows
+  const allPlayers = state.rawRows
     .map((row, index) => normalizePlayer(row, mapping, index))
     .filter((player) => player && POSITION_SET.has(player.position));
 
-  if (!players.length) {
+  state.allPlayers = allPlayers;
+
+  if (!allPlayers.length) {
     setStatus("No usable players found after applying the selected column mapping.");
     renderEmpty("No players matched the required fields.");
+    renderDraftedPlayers();
     return;
   }
+
+  const players = allPlayers.filter((player) => !state.draftedPlayers.has(player.id));
 
   const settings = getSettings();
   const expectedAuction = buildAuctionValues(players, "expectedPoints", settings);
@@ -169,9 +186,10 @@ function runValuation() {
     });
 
   updatePositionFilter(state.valuedPlayers);
-  updateSummary(players.length, settings, expectedAuction.auctionableBudget);
+  updateSummary(allPlayers.length, players.length, settings, expectedAuction.auctionableBudget);
   renderResults();
-  setStatus(`Valuation complete for ${players.length} players.`, true);
+  renderDraftedPlayers();
+  setStatus(`Valuation complete for ${players.length} remaining players.`, true);
 }
 
 function normalizePlayer(row, mapping, index) {
@@ -340,6 +358,22 @@ function renderResults() {
           <td>$${player.expectedPrice.toFixed(0)}</td>
           <td>$${player.ceilingPrice.toFixed(0)}</td>
           <td>${player.rangeLabel}</td>
+          <td>
+            <input
+              class="sale-input"
+              type="number"
+              min="0"
+              step="1"
+              inputmode="numeric"
+              placeholder="$"
+              data-sale-input="${escapeAttribute(player.id)}"
+            />
+          </td>
+          <td>
+            <button class="table-button" type="button" data-draft-id="${escapeAttribute(player.id)}">
+              Mark drafted
+            </button>
+          </td>
         </tr>
       `
     )
@@ -349,12 +383,50 @@ function renderResults() {
 function renderEmpty(message) {
   elements.resultsBody.innerHTML = `
     <tr>
-      <td colspan="8" class="empty-state">${escapeHtml(message)}</td>
+      <td colspan="10" class="empty-state">${escapeHtml(message)}</td>
     </tr>
   `;
 }
 
-function updateSummary(playerCount, settings, auctionableBudget) {
+function renderDraftedPlayers() {
+  const drafted = [...state.draftedPlayers.values()].sort((left, right) => {
+    if ((right.soldPrice ?? -1) !== (left.soldPrice ?? -1)) {
+      return (right.soldPrice ?? -1) - (left.soldPrice ?? -1);
+    }
+    return left.name.localeCompare(right.name);
+  });
+
+  if (!drafted.length) {
+    elements.draftedBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-state">No players have been marked as drafted.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  elements.draftedBody.innerHTML = drafted
+    .map(
+      (player) => `
+        <tr>
+          <td>${escapeHtml(player.name)}</td>
+          <td>${escapeHtml(player.team)}</td>
+          <td>${escapeHtml(player.position)}</td>
+          <td>${player.soldPrice == null ? "-" : formatMoney(player.soldPrice)}</td>
+          <td>$${player.expectedPrice.toFixed(0)}</td>
+          <td>$${player.ceilingPrice.toFixed(0)}</td>
+          <td>
+            <button class="table-button" type="button" data-undo-id="${escapeAttribute(player.id)}">
+              Restore
+            </button>
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+}
+
+function updateSummary(playerCount, remainingCount, settings, auctionableBudget) {
   const totalRosterSpots =
     settings.teams *
     (settings.qbSlots +
@@ -366,11 +438,18 @@ function updateSummary(playerCount, settings, auctionableBudget) {
       settings.kSlots +
       settings.dstSlots +
       settings.benchSlots);
+  const trackedSpend = [...state.draftedPlayers.values()].reduce(
+    (sum, player) => sum + (player.soldPrice ?? 0),
+    0
+  );
 
   elements.playersLoaded.textContent = String(playerCount);
+  elements.playersRemaining.textContent = String(remainingCount);
+  elements.playersDrafted.textContent = String(state.draftedPlayers.size);
   elements.totalRosterSpots.textContent = String(totalRosterSpots);
   elements.leagueBudget.textContent = formatMoney(settings.teams * settings.budget);
   elements.auctionPool.textContent = formatMoney(auctionableBudget);
+  elements.trackedSpend.textContent = formatMoney(trackedSpend);
 }
 
 function updatePositionFilter(players) {
@@ -413,6 +492,42 @@ function rerunIfReady() {
   if (state.rawRows.length) {
     runValuation();
   }
+}
+
+function handleResultsClick(event) {
+  const button = event.target.closest("[data-draft-id]");
+
+  if (!button) {
+    return;
+  }
+
+  const playerId = button.dataset.draftId;
+  const player = state.valuedPlayers.find((entry) => entry.id === playerId);
+
+  if (!player) {
+    return;
+  }
+
+  const saleInput = elements.resultsBody.querySelector(`[data-sale-input="${cssEscape(playerId)}"]`);
+  const rawSale = saleInput ? saleInput.value.trim() : "";
+  const soldPrice = rawSale === "" ? null : parseNumeric(rawSale);
+
+  state.draftedPlayers.set(playerId, {
+    ...player,
+    soldPrice: Number.isFinite(soldPrice) ? soldPrice : null,
+  });
+  runValuation();
+}
+
+function handleDraftedClick(event) {
+  const button = event.target.closest("[data-undo-id]");
+
+  if (!button) {
+    return;
+  }
+
+  state.draftedPlayers.delete(button.dataset.undoId);
+  runValuation();
 }
 
 function populateSelect(selectElement, options) {
@@ -538,6 +653,14 @@ function roundMoney(value) {
 
 function formatMoney(value) {
   return `$${Math.round(value).toLocaleString()}`;
+}
+
+function cssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === "function") {
+    return window.CSS.escape(value);
+  }
+
+  return String(value).replace(/"/g, '\\"');
 }
 
 function setStatus(message, success = false) {
