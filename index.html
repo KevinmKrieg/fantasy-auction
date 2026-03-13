@@ -90,6 +90,10 @@
               <span>Ceiling points</span>
               <select id="ceilingColumn"></select>
             </label>
+            <label>
+              <span>Target $ (optional)</span>
+              <select id="targetColumn"></select>
+            </label>
           </div>
           <button id="runValuationBtn" type="button" class="primary-button">
             Run valuation
@@ -222,6 +226,7 @@
                   <th>Ceiling Pts</th>
                   <th>Expected $</th>
                   <th>Ceiling $</th>
+                  <th>Target $</th>
                   <th>Range</th>
                   <th>Sale $</th>
                   <th>Action</th>
@@ -229,7 +234,7 @@
               </thead>
               <tbody id="resultsBody">
                 <tr>
-                  <td colspan="10" class="empty-state">
+                  <td colspan="11" class="empty-state">
                     Upload a CSV and run valuation to populate the board.
                   </td>
                 </tr>
@@ -253,12 +258,13 @@
                     <th>Sold $</th>
                     <th>Expected $</th>
                     <th>Ceiling $</th>
+                    <th>Target $</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="draftedBody">
                   <tr>
-                    <td colspan="7" class="empty-state">
+                    <td colspan="8" class="empty-state">
                       No players have been marked as drafted.
                     </td>
                   </tr>

@@ -39,6 +39,7 @@ const elements = {
   positionColumn: document.getElementById("positionColumn"),
   expectedColumn: document.getElementById("expectedColumn"),
   ceilingColumn: document.getElementById("ceilingColumn"),
+  targetColumn: document.getElementById("targetColumn"),
   nameFilter: document.getElementById("nameFilter"),
   teamFilter: document.getElementById("teamFilter"),
   positionFilter: document.getElementById("positionFilter"),
@@ -118,18 +119,21 @@ function loadCsvText(csvText, label) {
 
 function populateColumnMappings(headers) {
   const headerOptions = headers.map((header) => ({ value: header, label: header }));
+  const optionalHeaderOptions = [{ value: "", label: "None" }, ...headerOptions];
 
   populateSelect(elements.nameColumn, headerOptions);
   populateSelect(elements.teamColumn, headerOptions);
   populateSelect(elements.positionColumn, headerOptions);
   populateSelect(elements.expectedColumn, headerOptions);
   populateSelect(elements.ceilingColumn, headerOptions);
+  populateSelect(elements.targetColumn, optionalHeaderOptions);
 
   setSelectValue(elements.nameColumn, findHeader(headers, ["player", "name"]));
   setSelectValue(elements.teamColumn, findHeader(headers, ["team"]));
   setSelectValue(elements.positionColumn, findHeader(headers, ["position", "pos"]));
   setSelectValue(elements.expectedColumn, findHeader(headers, ["projected_points", "fantasy_points", "points", "fpts", "projection"]));
   setSelectValue(elements.ceilingColumn, findHeader(headers, ["ceiling_points", "ceiling", "high", "p90", "upside"]));
+  setSelectValue(elements.targetColumn, findHeader(headers, ["target", "target_price", "target$", "auction_value", "value"]));
 }
 
 function runValuation() {
@@ -199,6 +203,7 @@ function normalizePlayer(row, mapping, index) {
   const position = rawPosition === "DEF" ? "DST" : rawPosition;
   const expectedPoints = parseNumeric(row[mapping.expectedPoints]);
   const ceilingPoints = parseNumeric(row[mapping.ceilingPoints]);
+  const targetPrice = mapping.targetPrice ? parseOptionalNumeric(row[mapping.targetPrice]) : null;
 
   if (!name || !position || Number.isNaN(expectedPoints) || Number.isNaN(ceilingPoints)) {
     return null;
@@ -211,6 +216,7 @@ function normalizePlayer(row, mapping, index) {
     position,
     expectedPoints,
     ceilingPoints,
+    targetPrice,
   };
 }
 
@@ -357,6 +363,7 @@ function renderResults() {
           <td>${player.ceilingPoints.toFixed(1)}</td>
           <td>$${player.expectedPrice.toFixed(0)}</td>
           <td>$${player.ceilingPrice.toFixed(0)}</td>
+          <td>${player.targetPrice == null ? "-" : formatMoney(player.targetPrice)}</td>
           <td>${player.rangeLabel}</td>
           <td>
             <input
@@ -383,7 +390,7 @@ function renderResults() {
 function renderEmpty(message) {
   elements.resultsBody.innerHTML = `
     <tr>
-      <td colspan="10" class="empty-state">${escapeHtml(message)}</td>
+      <td colspan="11" class="empty-state">${escapeHtml(message)}</td>
     </tr>
   `;
 }
@@ -399,7 +406,7 @@ function renderDraftedPlayers() {
   if (!drafted.length) {
     elements.draftedBody.innerHTML = `
       <tr>
-        <td colspan="7" class="empty-state">No players have been marked as drafted.</td>
+        <td colspan="8" class="empty-state">No players have been marked as drafted.</td>
       </tr>
     `;
     return;
@@ -415,6 +422,7 @@ function renderDraftedPlayers() {
           <td>${player.soldPrice == null ? "-" : formatMoney(player.soldPrice)}</td>
           <td>$${player.expectedPrice.toFixed(0)}</td>
           <td>$${player.ceilingPrice.toFixed(0)}</td>
+          <td>${player.targetPrice == null ? "-" : formatMoney(player.targetPrice)}</td>
           <td>
             <button class="table-button" type="button" data-undo-id="${escapeAttribute(player.id)}">
               Restore
@@ -469,6 +477,7 @@ function getColumnMapping() {
     position: elements.positionColumn.value,
     expectedPoints: elements.expectedColumn.value,
     ceilingPoints: elements.ceilingColumn.value,
+    targetPrice: elements.targetColumn.value,
   };
 }
 
@@ -640,6 +649,20 @@ function parseNumeric(value) {
     .replace(/,/g, "")
     .trim();
   return Number.parseFloat(normalized);
+}
+
+function parseOptionalNumeric(value) {
+  const normalized = String(value ?? "")
+    .replace(/\$/g, "")
+    .replace(/,/g, "")
+    .trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function parseIntSafe(value, fallback) {

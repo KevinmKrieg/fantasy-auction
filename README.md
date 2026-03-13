@@ -5,7 +5,7 @@ Local draft helper for fantasy football auction leagues. Upload projection CSV d
 ## What it does
 
 - Imports a CSV from your projection source.
-- Lets you choose which columns represent player name, team, position, expected points, and ceiling points.
+- Lets you choose which columns represent player name, team, position, expected points, ceiling points, and an optional target price.
 - Converts projections into auction prices using roster demand plus above-replacement value.
 - Shows an `expected` price and a `ceiling` price for every player.
 - Filters the board by player name, team, and position.
@@ -49,6 +49,10 @@ Required logical fields:
 - position
 - expected points
 - ceiling points
+
+Optional field:
+
+- target `$`
 
 A sample dataset is included in the app through the `Load sample data` button so the interface can be tested immediately.
 
