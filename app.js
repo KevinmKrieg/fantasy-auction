@@ -355,7 +355,7 @@ function renderResults() {
   elements.resultsBody.innerHTML = filtered
     .map(
       (player) => `
-        <tr>
+        <tr data-player-row-id="${escapeAttribute(player.id)}">
           <td>${escapeHtml(player.name)}</td>
           <td>${escapeHtml(player.team)}</td>
           <td>${escapeHtml(player.position)}</td>
@@ -517,7 +517,8 @@ function handleResultsClick(event) {
     return;
   }
 
-  const saleInput = elements.resultsBody.querySelector(`[data-sale-input="${cssEscape(playerId)}"]`);
+  const row = button.closest("tr");
+  const saleInput = row ? row.querySelector("[data-sale-input]") : null;
   const rawSale = saleInput ? saleInput.value.trim() : "";
   const soldPrice = rawSale === "" ? null : parseNumeric(rawSale);
 
@@ -525,6 +526,7 @@ function handleResultsClick(event) {
     ...player,
     soldPrice: Number.isFinite(soldPrice) ? soldPrice : null,
   });
+  setStatus(`Marked ${player.name} as drafted.`, true);
   runValuation();
 }
 
@@ -536,6 +538,7 @@ function handleDraftedClick(event) {
   }
 
   state.draftedPlayers.delete(button.dataset.undoId);
+  setStatus("Restored player to the live board.", true);
   runValuation();
 }
 
@@ -678,13 +681,6 @@ function formatMoney(value) {
   return `$${Math.round(value).toLocaleString()}`;
 }
 
-function cssEscape(value) {
-  if (window.CSS && typeof window.CSS.escape === "function") {
-    return window.CSS.escape(value);
-  }
-
-  return String(value).replace(/"/g, '\\"');
-}
 
 function setStatus(message, success = false) {
   elements.uploadStatus.textContent = message;
