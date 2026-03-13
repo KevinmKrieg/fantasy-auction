@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <div class="screen-grid" aria-hidden="true"></div>
+    <div class="screen-glow" aria-hidden="true"></div>
     <div class="page-shell">
       <header class="hero">
-        <div>
-          <p class="eyebrow">Local Draft Tool</p>
+        <div class="hero-copy-block">
+          <p class="eyebrow">NERV // Local Draft Tool</p>
+          <p class="hero-kicker">AUCTION TARGETING INTERFACE</p>
           <h1>Fantasy Auction Board</h1>
           <p class="hero-copy">
             Upload projection data, map your expected and ceiling columns, and turn
@@ -18,8 +21,14 @@
           </p>
         </div>
         <div class="hero-card">
-          <p class="hero-stat-label">Preferred lens</p>
-          <p class="hero-stat">Ceiling-first pricing</p>
+          <div class="hero-card-line">
+            <p class="hero-stat-label">Mode</p>
+            <p class="hero-stat">Ceiling-first pricing</p>
+          </div>
+          <div class="hero-badge-row">
+            <span class="hero-badge">UPSIDE SIGNAL</span>
+            <span class="hero-badge">LIVE BOARD</span>
+          </div>
           <p class="hero-note">
             Expected price gives a baseline. Ceiling price shows what the upside
             profile is worth in a winner-take-all room.
@@ -30,7 +39,8 @@
       <main class="layout">
         <section class="panel">
           <div class="panel-heading">
-            <h2>1. Upload Projections</h2>
+            <p class="section-tag">SECTOR 01</p>
+            <h2>Upload Projections</h2>
             <p>Use a CSV export from your projection source.</p>
           </div>
           <div class="upload-stack">
@@ -55,7 +65,8 @@
 
         <section class="panel">
           <div class="panel-heading">
-            <h2>2. Map Columns</h2>
+            <p class="section-tag">SECTOR 02</p>
+            <h2>Map Columns</h2>
             <p>Choose the fields the app should use for pricing.</p>
           </div>
           <div class="grid two-up">
@@ -87,7 +98,8 @@
 
         <section class="panel">
           <div class="panel-heading">
-            <h2>3. League Settings</h2>
+            <p class="section-tag">SECTOR 03</p>
+            <h2>League Settings</h2>
             <p>These settings determine roster demand and budget distribution.</p>
           </div>
           <div class="grid settings-grid">
@@ -146,6 +158,7 @@
         <section class="panel full-width">
           <div class="panel-heading panel-heading-row">
             <div>
+              <p class="section-tag">SECTOR 04</p>
               <h2>Player Board</h2>
               <p>Filter by player, team, or position.</p>
             </div>
@@ -168,31 +181,31 @@
           </div>
 
           <div class="summary-strip" id="summaryStrip">
-            <article>
+            <article class="stat-card">
               <span class="summary-label">Players loaded</span>
               <strong id="playersLoaded">0</strong>
             </article>
-            <article>
+            <article class="stat-card">
               <span class="summary-label">Players remaining</span>
               <strong id="playersRemaining">0</strong>
             </article>
-            <article>
+            <article class="stat-card">
               <span class="summary-label">Players drafted</span>
               <strong id="playersDrafted">0</strong>
             </article>
-            <article>
+            <article class="stat-card">
               <span class="summary-label">Roster spots</span>
               <strong id="totalRosterSpots">0</strong>
             </article>
-            <article>
+            <article class="stat-card">
               <span class="summary-label">League budget</span>
               <strong id="leagueBudget">$0</strong>
             </article>
-            <article>
+            <article class="stat-card">
               <span class="summary-label">Above-minimum pool</span>
               <strong id="auctionPool">$0</strong>
             </article>
-            <article>
+            <article class="stat-card">
               <span class="summary-label">Tracked spend</span>
               <strong id="trackedSpend">$0</strong>
             </article>
@@ -226,6 +239,7 @@
 
           <div class="drafted-section">
             <div class="panel-heading">
+              <p class="section-tag">ARCHIVE</p>
               <h2>Drafted Players</h2>
               <p>Players removed from the live board, with optional sale prices.</p>
             </div>
