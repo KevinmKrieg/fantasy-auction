@@ -27,6 +27,7 @@ const state = {
   allPlayers: [],
   valuedPlayers: [],
   draftedPlayers: new Map(),
+  setupCollapsed: false,
 };
 
 const elements = {
@@ -34,6 +35,9 @@ const elements = {
   loadSampleBtn: document.getElementById("loadSampleBtn"),
   uploadStatus: document.getElementById("uploadStatus"),
   runValuationBtn: document.getElementById("runValuationBtn"),
+  toggleSetupBtn: document.getElementById("toggleSetupBtn"),
+  setupShell: document.getElementById("setupShell"),
+  setupPanels: document.getElementById("setupPanels"),
   nameColumn: document.getElementById("nameColumn"),
   teamColumn: document.getElementById("teamColumn"),
   positionColumn: document.getElementById("positionColumn"),
@@ -50,6 +54,7 @@ const elements = {
   leagueBudget: document.getElementById("leagueBudget"),
   auctionPool: document.getElementById("auctionPool"),
   trackedSpend: document.getElementById("trackedSpend"),
+  positionValueChart: document.getElementById("positionValueChart"),
   resultsBody: document.getElementById("resultsBody"),
   draftedBody: document.getElementById("draftedBody"),
 };
@@ -74,6 +79,7 @@ function initialize() {
   elements.csvFile.addEventListener("change", handleFileUpload);
   elements.loadSampleBtn.addEventListener("click", () => loadCsvText(SAMPLE_CSV, "sample-projections.csv"));
   elements.runValuationBtn.addEventListener("click", runValuation);
+  elements.toggleSetupBtn.addEventListener("click", toggleSetupVisibility);
   elements.nameFilter.addEventListener("input", renderResults);
   elements.teamFilter.addEventListener("input", renderResults);
   elements.positionFilter.addEventListener("change", renderResults);
@@ -112,8 +118,10 @@ function loadCsvText(csvText, label) {
   state.allPlayers = [];
   state.valuedPlayers = [];
   state.draftedPlayers = new Map();
+  state.setupCollapsed = false;
   setStatus(`Loaded ${parsed.rows.length} players from ${label}.`, true);
   populateColumnMappings(parsed.headers);
+  syncSetupState();
   runValuation();
 }
 
@@ -140,6 +148,7 @@ function runValuation() {
   if (!state.rawRows.length) {
     renderEmpty("Upload a CSV and run valuation to populate the board.");
     updateSummary(0, 0, getSettings(), 0);
+    renderPositionValueChart([]);
     renderDraftedPlayers();
     return;
   }
@@ -191,8 +200,13 @@ function runValuation() {
 
   updatePositionFilter(state.valuedPlayers);
   updateSummary(allPlayers.length, players.length, settings, expectedAuction.auctionableBudget);
+  renderPositionValueChart(state.valuedPlayers);
   renderResults();
   renderDraftedPlayers();
+  if (!state.setupCollapsed) {
+    state.setupCollapsed = true;
+    syncSetupState();
+  }
   setStatus(`Valuation complete for ${players.length} remaining players.`, true);
 }
 
@@ -434,6 +448,44 @@ function renderDraftedPlayers() {
     .join("");
 }
 
+function renderPositionValueChart(players) {
+  if (!players.length) {
+    elements.positionValueChart.innerHTML = `<p class="chart-empty">Run valuation to see remaining position value.</p>`;
+    return;
+  }
+
+  const totals = POSITION_ORDER.map((position) => {
+    const total = players
+      .filter((player) => player.position === position)
+      .reduce((sum, player) => sum + player.ceilingPrice, 0);
+
+    return { position, total };
+  }).filter((entry) => entry.total > 0);
+
+  if (!totals.length) {
+    elements.positionValueChart.innerHTML = `<p class="chart-empty">No remaining position value available.</p>`;
+    return;
+  }
+
+  const maxTotal = Math.max(...totals.map((entry) => entry.total), 1);
+
+  elements.positionValueChart.innerHTML = totals
+    .map(
+      (entry) => `
+        <article class="position-bar-card">
+          <div class="position-bar-header">
+            <span class="position-bar-label">${escapeHtml(entry.position)}</span>
+            <strong>${formatMoney(entry.total)}</strong>
+          </div>
+          <div class="position-bar-track">
+            <div class="position-bar-fill" style="width: ${(entry.total / maxTotal) * 100}%"></div>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
 function updateSummary(playerCount, remainingCount, settings, auctionableBudget) {
   const totalRosterSpots =
     settings.teams *
@@ -501,6 +553,21 @@ function rerunIfReady() {
   if (state.rawRows.length) {
     runValuation();
   }
+}
+
+function toggleSetupVisibility() {
+  if (elements.toggleSetupBtn.disabled) {
+    return;
+  }
+
+  state.setupCollapsed = !state.setupCollapsed;
+  syncSetupState();
+}
+
+function syncSetupState() {
+  elements.setupShell.classList.toggle("is-collapsed", state.setupCollapsed);
+  elements.toggleSetupBtn.disabled = !state.rawRows.length;
+  elements.toggleSetupBtn.textContent = state.setupCollapsed ? "Show setup" : "Hide setup";
 }
 
 function handleResultsClick(event) {

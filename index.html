@@ -35,126 +35,144 @@
       </header>
 
       <main class="layout">
-        <section class="panel">
-          <div class="panel-heading">
-            <p class="section-tag">Module 01</p>
-            <h2>Upload Projections</h2>
-            <p>Use a CSV export from your projection source.</p>
-          </div>
-          <div class="upload-stack">
-            <label class="file-input">
-              <span>Projection CSV</span>
-              <input id="csvFile" type="file" accept=".csv,text/csv" />
-            </label>
-            <button id="loadSampleBtn" type="button" class="secondary-button">
-              Load sample data
+        <section class="setup-shell full-width" id="setupShell">
+          <div class="setup-toolbar">
+            <div>
+              <p class="section-tag">Setup Rail</p>
+              <h2>Upload, map, and configure once</h2>
+              <p class="setup-copy">
+                Collapse setup during the auction to keep the board and remaining
+                market in view.
+              </p>
+            </div>
+            <button id="toggleSetupBtn" type="button" class="secondary-button setup-toggle" disabled>
+              Hide setup
             </button>
           </div>
-          <p id="uploadStatus" class="status">No file loaded.</p>
-          <details class="details-card">
-            <summary>Expected CSV shape</summary>
-            <p>
-              The app only requires player name, team, position, an expected points
-              column, and a ceiling points column. If your source uses different
-              labels, map them below after upload.
-            </p>
-          </details>
-        </section>
 
-        <section class="panel">
-          <div class="panel-heading">
-            <p class="section-tag">Module 02</p>
-            <h2>Map Columns</h2>
-            <p>Choose the fields the app should use for pricing.</p>
-          </div>
-          <div class="grid two-up">
-            <label>
-              <span>Name</span>
-              <select id="nameColumn"></select>
-            </label>
-            <label>
-              <span>Team</span>
-              <select id="teamColumn"></select>
-            </label>
-            <label>
-              <span>Position</span>
-              <select id="positionColumn"></select>
-            </label>
-            <label>
-              <span>Expected points</span>
-              <select id="expectedColumn"></select>
-            </label>
-            <label>
-              <span>Ceiling points</span>
-              <select id="ceilingColumn"></select>
-            </label>
-            <label>
-              <span>Target $ (optional)</span>
-              <select id="targetColumn"></select>
-            </label>
-          </div>
-          <button id="runValuationBtn" type="button" class="primary-button">
-            Run valuation
-          </button>
-        </section>
+          <div class="setup-panels" id="setupPanels">
+            <section class="panel">
+              <div class="panel-heading">
+                <p class="section-tag">Module 01</p>
+                <h2>Upload Projections</h2>
+                <p>Use a CSV export from your projection source.</p>
+              </div>
+              <div class="upload-stack">
+                <label class="file-input">
+                  <span>Projection CSV</span>
+                  <input id="csvFile" type="file" accept=".csv,text/csv" />
+                </label>
+                <button id="loadSampleBtn" type="button" class="secondary-button">
+                  Load sample data
+                </button>
+              </div>
+              <p id="uploadStatus" class="status">No file loaded.</p>
+              <details class="details-card">
+                <summary>Expected CSV shape</summary>
+                <p>
+                  The app only requires player name, team, position, an expected points
+                  column, and a ceiling points column. If your source uses different
+                  labels, map them below after upload.
+                </p>
+              </details>
+            </section>
 
-        <section class="panel">
-          <div class="panel-heading">
-            <p class="section-tag">Module 03</p>
-            <h2>League Settings</h2>
-            <p>These settings determine roster demand and budget distribution.</p>
+            <section class="panel">
+              <div class="panel-heading">
+                <p class="section-tag">Module 02</p>
+                <h2>Map Columns</h2>
+                <p>Choose the fields the app should use for pricing.</p>
+              </div>
+              <div class="grid two-up">
+                <label>
+                  <span>Name</span>
+                  <select id="nameColumn"></select>
+                </label>
+                <label>
+                  <span>Team</span>
+                  <select id="teamColumn"></select>
+                </label>
+                <label>
+                  <span>Position</span>
+                  <select id="positionColumn"></select>
+                </label>
+                <label>
+                  <span>Expected points</span>
+                  <select id="expectedColumn"></select>
+                </label>
+                <label>
+                  <span>Ceiling points</span>
+                  <select id="ceilingColumn"></select>
+                </label>
+                <label>
+                  <span>Target $ (optional)</span>
+                  <select id="targetColumn"></select>
+                </label>
+              </div>
+              <button id="runValuationBtn" type="button" class="primary-button">
+                Run valuation
+              </button>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <p class="section-tag">Module 03</p>
+                <h2>League Settings</h2>
+                <p>These settings determine roster demand and budget distribution.</p>
+              </div>
+              <div class="grid settings-grid">
+                <label>
+                  <span>Teams</span>
+                  <input id="teams" type="number" min="2" max="20" value="12" />
+                </label>
+                <label>
+                  <span>Budget</span>
+                  <input id="budget" type="number" min="50" max="500" value="200" />
+                </label>
+                <label>
+                  <span>QB</span>
+                  <input id="qbSlots" type="number" min="0" max="4" value="1" />
+                </label>
+                <label>
+                  <span>RB</span>
+                  <input id="rbSlots" type="number" min="0" max="6" value="2" />
+                </label>
+                <label>
+                  <span>WR</span>
+                  <input id="wrSlots" type="number" min="0" max="6" value="2" />
+                </label>
+                <label>
+                  <span>TE</span>
+                  <input id="teSlots" type="number" min="0" max="4" value="1" />
+                </label>
+                <label>
+                  <span>Flex</span>
+                  <input id="flexSlots" type="number" min="0" max="4" value="1" />
+                </label>
+                <label>
+                  <span>Superflex</span>
+                  <input id="superflexSlots" type="number" min="0" max="2" value="0" />
+                </label>
+                <label>
+                  <span>K</span>
+                  <input id="kSlots" type="number" min="0" max="2" value="0" />
+                </label>
+                <label>
+                  <span>D/ST</span>
+                  <input id="dstSlots" type="number" min="0" max="2" value="0" />
+                </label>
+                <label>
+                  <span>Bench</span>
+                  <input id="benchSlots" type="number" min="0" max="12" value="6" />
+                </label>
+              </div>
+              <p class="settings-note">
+                Bench spots are allocated to the strongest remaining players across all
+                positions, which makes the replacement level responsive to your uploaded
+                projections.
+              </p>
+            </section>
           </div>
-          <div class="grid settings-grid">
-            <label>
-              <span>Teams</span>
-              <input id="teams" type="number" min="2" max="20" value="12" />
-            </label>
-            <label>
-              <span>Budget</span>
-              <input id="budget" type="number" min="50" max="500" value="200" />
-            </label>
-            <label>
-              <span>QB</span>
-              <input id="qbSlots" type="number" min="0" max="4" value="1" />
-            </label>
-            <label>
-              <span>RB</span>
-              <input id="rbSlots" type="number" min="0" max="6" value="2" />
-            </label>
-            <label>
-              <span>WR</span>
-              <input id="wrSlots" type="number" min="0" max="6" value="2" />
-            </label>
-            <label>
-              <span>TE</span>
-              <input id="teSlots" type="number" min="0" max="4" value="1" />
-            </label>
-            <label>
-              <span>Flex</span>
-              <input id="flexSlots" type="number" min="0" max="4" value="1" />
-            </label>
-            <label>
-              <span>Superflex</span>
-              <input id="superflexSlots" type="number" min="0" max="2" value="0" />
-            </label>
-            <label>
-              <span>K</span>
-              <input id="kSlots" type="number" min="0" max="2" value="0" />
-            </label>
-            <label>
-              <span>D/ST</span>
-              <input id="dstSlots" type="number" min="0" max="2" value="0" />
-            </label>
-            <label>
-              <span>Bench</span>
-              <input id="benchSlots" type="number" min="0" max="12" value="6" />
-            </label>
-          </div>
-          <p class="settings-note">
-            Bench spots are allocated to the strongest remaining players across all
-            positions, which makes the replacement level responsive to your uploaded
-            projections.
-          </p>
         </section>
 
         <section class="panel full-width">
@@ -211,6 +229,19 @@
               <span class="summary-label">Tracked spend</span>
               <strong id="trackedSpend">$0</strong>
             </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel dashboard-panel">
+              <div class="panel-heading">
+                <p class="section-tag">Telemetry</p>
+                <h2>Remaining Value By Position</h2>
+                <p>Live ceiling-dollar pool for the players still on the board.</p>
+              </div>
+              <div id="positionValueChart" class="position-chart">
+                <p class="chart-empty">Run valuation to see remaining position value.</p>
+              </div>
+            </section>
           </div>
 
           <div class="table-wrap">

@@ -202,13 +202,55 @@ select {
   gap: 20px;
 }
 
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.setup-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.setup-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(10, 13, 16, 0.78);
+  box-shadow: var(--shadow);
+}
+
+.setup-toolbar h2 {
+  margin: 10px 0 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.setup-copy {
+  max-width: 64ch;
+}
+
+.setup-toggle:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.setup-panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.setup-shell.is-collapsed .setup-panels {
+  display: none;
+}
+
 .panel {
   padding: 22px;
   background: linear-gradient(180deg, rgba(16, 20, 24, 0.96), rgba(10, 13, 16, 0.96));
-}
-
-.panel.full-width {
-  grid-column: 1 / -1;
 }
 
 .panel-heading h2 {
@@ -385,6 +427,63 @@ select,
   letter-spacing: -0.03em;
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dashboard-panel {
+  padding: 20px 22px;
+}
+
+.position-chart {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.position-bar-card {
+  display: grid;
+  gap: 8px;
+}
+
+.position-bar-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: baseline;
+}
+
+.position-bar-label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.position-bar-track {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.position-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(125, 185, 255, 0.86), rgba(255, 90, 95, 0.78));
+}
+
+.chart-empty {
+  margin: 0;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+}
+
 .table-wrap {
   overflow: auto;
   border-radius: 18px;
@@ -486,6 +585,11 @@ summary:focus {
     flex-direction: column;
   }
 
+  .setup-toolbar {
+    flex-direction: column;
+  }
+
+  .setup-panels,
   .filters-grid,
   .summary-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -503,6 +607,7 @@ summary:focus {
     padding: 18px;
   }
 
+  .setup-panels,
   .two-up,
   .settings-grid,
   .filters-grid,
