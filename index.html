@@ -234,6 +234,42 @@
           <div class="dashboard-grid">
             <section class="panel dashboard-panel">
               <div class="panel-heading">
+                <p class="section-tag">Command</p>
+                <h2>Quick Draft Entry</h2>
+                <p>Type a player name, then press Enter to mark the best match as drafted.</p>
+              </div>
+              <div class="quick-draft-shell">
+                <label class="quick-draft-main">
+                  <span>Player lookup</span>
+                  <input
+                    id="quickDraftInput"
+                    type="search"
+                    autocomplete="off"
+                    placeholder="Type player name, team, or position"
+                  />
+                </label>
+                <label class="quick-draft-price">
+                  <span>Sale $</span>
+                  <input
+                    id="quickDraftPrice"
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                    placeholder="Optional"
+                  />
+                </label>
+                <button id="quickDraftBtn" type="button" class="primary-button">
+                  Mark drafted
+                </button>
+              </div>
+              <div id="quickDraftMatches" class="quick-draft-matches">
+                <p class="chart-empty">Load projections to enable quick draft entry.</p>
+              </div>
+            </section>
+
+            <section class="panel dashboard-panel">
+              <div class="panel-heading">
                 <p class="section-tag">Telemetry</p>
                 <h2>Remaining Value By Position</h2>
                 <p>Live ceiling-dollar pool for the players still on the board.</p>

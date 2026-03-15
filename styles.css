@@ -429,7 +429,7 @@ select,
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -571,6 +571,49 @@ summary:focus {
   outline-offset: 2px;
 }
 
+.quick-draft-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(120px, 0.5fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 18px;
+}
+
+.quick-draft-main,
+.quick-draft-price {
+  display: block;
+}
+
+.quick-draft-matches {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.quick-draft-match {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(100px, 0.8fr) auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(13, 17, 20, 0.96);
+  color: var(--text);
+  text-align: left;
+}
+
+.quick-draft-match span:last-child {
+  color: var(--status);
+  font-weight: 700;
+}
+
+.quick-draft-match.is-primary-match {
+  border-color: rgba(255, 90, 95, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 90, 95, 0.08);
+}
+
 @media (max-width: 1080px) {
   .layout,
   .hero {
@@ -590,6 +633,7 @@ summary:focus {
   }
 
   .setup-panels,
+  .dashboard-grid,
   .filters-grid,
   .summary-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -608,10 +652,16 @@ summary:focus {
   }
 
   .setup-panels,
+  .dashboard-grid,
   .two-up,
   .settings-grid,
   .filters-grid,
   .summary-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-draft-shell,
+  .quick-draft-match {
     grid-template-columns: 1fr;
   }
 

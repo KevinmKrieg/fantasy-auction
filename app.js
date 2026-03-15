@@ -44,6 +44,10 @@ const elements = {
   expectedColumn: document.getElementById("expectedColumn"),
   ceilingColumn: document.getElementById("ceilingColumn"),
   targetColumn: document.getElementById("targetColumn"),
+  quickDraftInput: document.getElementById("quickDraftInput"),
+  quickDraftPrice: document.getElementById("quickDraftPrice"),
+  quickDraftBtn: document.getElementById("quickDraftBtn"),
+  quickDraftMatches: document.getElementById("quickDraftMatches"),
   nameFilter: document.getElementById("nameFilter"),
   teamFilter: document.getElementById("teamFilter"),
   positionFilter: document.getElementById("positionFilter"),
@@ -80,6 +84,10 @@ function initialize() {
   elements.loadSampleBtn.addEventListener("click", () => loadCsvText(SAMPLE_CSV, "sample-projections.csv"));
   elements.runValuationBtn.addEventListener("click", runValuation);
   elements.toggleSetupBtn.addEventListener("click", toggleSetupVisibility);
+  elements.quickDraftInput.addEventListener("input", renderQuickDraftMatches);
+  elements.quickDraftInput.addEventListener("keydown", handleQuickDraftKeydown);
+  elements.quickDraftBtn.addEventListener("click", submitQuickDraft);
+  elements.quickDraftMatches.addEventListener("click", handleQuickDraftMatchesClick);
   elements.nameFilter.addEventListener("input", renderResults);
   elements.teamFilter.addEventListener("input", renderResults);
   elements.positionFilter.addEventListener("change", renderResults);
@@ -149,6 +157,7 @@ function runValuation() {
     renderEmpty("Upload a CSV and run valuation to populate the board.");
     updateSummary(0, 0, getSettings(), 0);
     renderPositionValueChart([]);
+    renderQuickDraftMatches();
     renderDraftedPlayers();
     return;
   }
@@ -201,6 +210,7 @@ function runValuation() {
   updatePositionFilter(state.valuedPlayers);
   updateSummary(allPlayers.length, players.length, settings, expectedAuction.auctionableBudget);
   renderPositionValueChart(state.valuedPlayers);
+  renderQuickDraftMatches();
   renderResults();
   renderDraftedPlayers();
   if (!state.setupCollapsed) {
@@ -486,6 +496,53 @@ function renderPositionValueChart(players) {
     .join("");
 }
 
+function renderQuickDraftMatches() {
+  if (!state.valuedPlayers.length) {
+    elements.quickDraftMatches.innerHTML = `<p class="chart-empty">Load projections to enable quick draft entry.</p>`;
+    elements.quickDraftBtn.disabled = true;
+    return;
+  }
+
+  const matches = getQuickDraftMatches();
+
+  if (!matches.length) {
+    elements.quickDraftMatches.innerHTML = `<p class="chart-empty">No remaining players match the current quick search.</p>`;
+    elements.quickDraftBtn.disabled = true;
+    return;
+  }
+
+  elements.quickDraftBtn.disabled = false;
+  elements.quickDraftMatches.innerHTML = matches
+    .map(
+      (player, index) => `
+        <button
+          class="quick-draft-match ${index === 0 ? "is-primary-match" : ""}"
+          type="button"
+          data-quick-draft-id="${escapeAttribute(player.id)}"
+        >
+          <span>${escapeHtml(player.name)}</span>
+          <span>${escapeHtml(player.team)} · ${escapeHtml(player.position)}</span>
+          <span>${player.targetPrice == null ? `$${player.ceilingPrice.toFixed(0)}` : formatMoney(player.targetPrice)}</span>
+        </button>
+      `
+    )
+    .join("");
+}
+
+function getQuickDraftMatches() {
+  const query = elements.quickDraftInput.value.trim().toLowerCase();
+  const pool = state.valuedPlayers;
+
+  const matches = query
+    ? pool.filter((player) => {
+        const haystack = `${player.name} ${player.team} ${player.position}`.toLowerCase();
+        return haystack.includes(query);
+      })
+    : pool;
+
+  return matches.slice(0, 8);
+}
+
 function updateSummary(playerCount, remainingCount, settings, auctionableBudget) {
   const totalRosterSpots =
     settings.teams *
@@ -589,12 +646,7 @@ function handleResultsClick(event) {
   const rawSale = saleInput ? saleInput.value.trim() : "";
   const soldPrice = rawSale === "" ? null : parseNumeric(rawSale);
 
-  state.draftedPlayers.set(playerId, {
-    ...player,
-    soldPrice: Number.isFinite(soldPrice) ? soldPrice : null,
-  });
-  setStatus(`Marked ${player.name} as drafted.`, true);
-  runValuation();
+  draftPlayerById(playerId, Number.isFinite(soldPrice) ? soldPrice : null);
 }
 
 function handleDraftedClick(event) {
@@ -606,6 +658,64 @@ function handleDraftedClick(event) {
 
   state.draftedPlayers.delete(button.dataset.undoId);
   setStatus("Restored player to the live board.", true);
+  runValuation();
+}
+
+function handleQuickDraftKeydown(event) {
+  if (event.key !== "Enter") {
+    return;
+  }
+
+  event.preventDefault();
+  submitQuickDraft();
+}
+
+function handleQuickDraftMatchesClick(event) {
+  const button = event.target.closest("[data-quick-draft-id]");
+
+  if (!button) {
+    return;
+  }
+
+  draftPlayerById(button.dataset.quickDraftId, readQuickDraftSalePrice());
+}
+
+function submitQuickDraft() {
+  const [match] = getQuickDraftMatches();
+
+  if (!match) {
+    setStatus("No remaining player matches the quick draft search.", false);
+    return;
+  }
+
+  draftPlayerById(match.id, readQuickDraftSalePrice());
+}
+
+function readQuickDraftSalePrice() {
+  const rawSale = elements.quickDraftPrice.value.trim();
+
+  if (!rawSale) {
+    return null;
+  }
+
+  const parsed = parseNumeric(rawSale);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function draftPlayerById(playerId, soldPrice) {
+  const player = state.valuedPlayers.find((entry) => entry.id === playerId);
+
+  if (!player) {
+    return;
+  }
+
+  state.draftedPlayers.set(playerId, {
+    ...player,
+    soldPrice,
+  });
+  elements.quickDraftInput.value = "";
+  elements.quickDraftPrice.value = "";
+  setStatus(`Marked ${player.name} as drafted.`, true);
   runValuation();
 }
 
